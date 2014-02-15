@@ -15,13 +15,12 @@ Puppet::Type.type(:rabbitmq_queue).provide(:rabbitmqadmin) do
   def self.instances
     resources = []
     rabbitmqadmin('list', 'queues').split(/\n/)[3..-2].collect do |line|
-      if line =~ /^\|(\s+([^|]+)\s+\|){14}$/
+      if line =~ /^\|\s+(\S+)\s+\|\s+(\S+)\s+\|(\s+([^|]+)\s+\|){12}$/
         entry = {
           :ensure => :present,
-          :name   => "%s@%s" % [$2, $1],
-          :type   => $3
+          :name   => "%s@%s" % [$2, $1]
         }
-        resources << new(entry) if entry[:type]
+        resources << new(entry)
       else
         raise Puppet::Error, "Cannot parse invalid queue line: #{line}"
       end
